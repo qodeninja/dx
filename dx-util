@@ -10,7 +10,7 @@
 ##------------------------------------------------------------------------------
 ## name:dx-util
 ## autobuild: 00001
-## author:qodeninja
+## author:jakkvega
 ## updated: 
 ##------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 
 	readonly script_pid=$$
-	readonly script_author="qodeninja"
+	readonly script_author="jakkvega"
 	readonly script_id="dx-setup"
 	readonly script_prefix="DX"
 	readonly script_rc_file=".dxrc"
@@ -110,21 +110,78 @@
 		return 0
 	}
 
+#-------------------------------------------------------------------------------
+# SED Utils
+#-------------------------------------------------------------------------------
+#====================================api:sed!==================================
+
+	function file_marker(){
+		local delim dst dend mode="$1" lbl="$2" as="$3"
+		dst='#';dend='#';
+		[ "$as" = "js" ] && { dst='\/\*'; dend='\*\/'; }|| :
+		[ "$mode" = "str" ] && str='str' || str='end'
+		echo "${dst}----${block_lbl}:${str}----${dend}"
+	}
+
+	function file_add_block(){
+		local newval="$1" src="$2" block_lbl="$3" delim="$4" match_st match_end data res ret=1
+		match_st=$(file_marker "str" "${block_lbl}" "${delim}" )
+		match_end=$(file_marker "end" "${block_lbl}" "${delim}" )
+		res=$(file_find_block "$src" "$block_lbl" "${delim}" )
+		ret=$?
+		if [ $ret -gt 0 ]; then #nomatch ret=1
+			data="$(cat <<-EOF
+				${match_st}
+				${newval}
+				${match_end}
+			EOF
+			)";
+			echo "$data" >> $src
+			ret=$?
+		else
+			ret=1
+		fi
+		return $ret
+	}
+
+	function file_del_block(){
+		local src="$1" block_lbl="$2" delim="$3" match_st match_end data res ret dst dend
+		match_st=$(file_marker "str" "${block_lbl}" "${delim}" )
+		match_end=$(file_marker "end" "${block_lbl}" "${delim}" )
+		#fix clobber
+		sed -i.bak "/${match_st}/,/${match_end}/d" "$src";ret=$?
+		#sed "/${match_st}/,/${match_end}/d" "$src" < "${src}.bak" > "$src" ;ret=$?
+		res=$(file_find_block "$src" "$block_lbl" "${delim}" );ret=$?
+		[ $ret -gt 0 ] && ret=0 || ret=1
+		rm -f "${src}.bak"
+		return $ret
+	}
+
+	function file_find_block(){
+		local src="$1" block_lbl="$2" delim="$3" match_st match_end data res ret=1
+		match_st=$(file_marker "str" "${block_lbl}" "${delim}")
+		match_end=$(file_marker "end" "${block_lbl}" "${delim}")
+		res=$(sed -n "/${match_st}/,/${match_end}/p" "$src")
+		[ -z "$res" ] && ret=1 || ret=0;
+		echo "$res"
+		return $ret;
+	}
+#====================================!api:sed==================================
 
 #-------------------------------------------------------------------------------
 # DX API
 #-------------------------------------------------------------------------------
 
 	function api_options(){
-		[ "$0" != "-bash" ] && FX_THIS_DIR="$( cd "$(dirname "$0")" || exit; pwd -P)" \
-												|| FX_THIS_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" || exit; pwd -P)"
+		[ "$0" != "-bash" ] && DX_THIS_DIR="$( cd "$(dirname "$0")" || exit; pwd -P)" \
+												|| DX_THIS_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" || exit; pwd -P)"
 
-		FX_ROOT_DIR="$( cd $FX_THIS_DIR && cd .. || exit; pwd -P)"
+		DX_ROOT_DIR="$( cd $FX_THIS_DIR && cd .. || exit; pwd -P)"
 
-		FX_INSTALLED=1
+		DX_INSTALLED=1
 
-		FX_OPT_USER="/usr/local"
-		FX_OPT_HOME="$HOME/.local"
+		DX_OPT_USER="/usr/local"
+		DX_OPT_HOME="$HOME/.local"
 
 		opt_debug=1
 		opt_quiet=1
@@ -133,27 +190,27 @@
 		opt_nuke=1
 		opt_clean=1
 
-		FX_PKG_URL="https://git.io/fx-pkg"
-		FX_SETUP_URL="https://git.io/fx-setup"
-		FX_UTIL_URL="https://git.io/fx-util"
+		DX_PKG_URL="https://git.io/fx-pkg"
+		DX_SETUP_URL="https://git.io/fx-setup"
+		DX_UTIL_URL="https://git.io/fx-util"
 
 		[ -f "$HOME/.profile" ] && FX_BASH_PROFILE="$HOME/.profile" || FX_BASH_PROFILE="$HOME/.bash_profile"
 
 		[[ "${@}" =~ "--system" ]] && { opt_local=0; DX_PREFIX="/usr/local"; } || :
 		[[ "${@}" =~ "--local"  ]] && { opt_local=1; DX_PREFIX="$HOME/.local"; } || :
 		[[ "${@}" =~ "--quiet"  ]] && { opt_quiet=0; opt_yes=0; } || :
-		[[ "${@}" =~ "--debug"  ]] && opt_debug=0 || :
+		[[ "${@}" =~ "--debug"  ]] || [ $DEBUG_MODE -eq 0 ] && opt_debug=0 || :
 		[[ "${@}" =~ "--nuke"   ]] && opt_nuke=0  || :
 		[[ "${@}" =~ "--clean"  ]] && opt_clean=0 || :
 		[[ "${@}" =~ "--yes"    ]] && opt_yes=0   || :
 
-		list=($(find "$DX_OPT_HOME" "$DX_OPT_USER" -type f -name "bashfx.conf"))
+		list=($(find "$DX_OPT_HOME" "$DX_OPT_USER" -type f -name "dx.conf"))
 		len=${#list[@]};
 
-		[ $len -gt 0 ] && source "${list[0]}" || info "Could not find local bashfx.conf"
+		[ $len -gt 0 ] && source "${list[0]}" || info "Could not find local dx.conf"
 		[ $DX_INSTALLED -eq 0 ] && fx_vars || :
 
-		info "FX_PREFIX defined? ($FX_PREFIX)"
+		info "DX_PREFIX defined? ($FX_PREFIX)"
 	}
 
 

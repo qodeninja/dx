@@ -13,4 +13,46 @@
 ## author:qodeninja
 ## updated: 
 ##------------------------------------------------------------------------------
-#so cool
+
+#1 Unknown System-------------------
+#> Where am I, what can I do?
+	#?> DX - who is the user and what does he want
+	#?> DX - check for typical folders and permissions
+	#?> DX - mark that i've been here
+	#?> HANDSHAKE - read hardware and generate a handshake token
+
+#> Am I alone?
+	#?> DX - see if any command modules and binaries are present
+
+#> Make this look like home.
+	#?> DX - generate typical folder structure and links
+
+#> Try to call some friends.
+	#?> DX - see if I can curl or wget some meta data
+	#?> DX - download updates
+	#?> DX - see if user wants additional packages
+
+#> Establish colony.
+	#?> DX - drop RC file
+
+#> RUN USER COMMAND
+
+#2 Known System----------------------
+
+#> What is the state of things?
+
+#> Available commands for USER
+
+#> UTILITY COMMANDS
+
+#:$> DX
+
+#:$> COACH
+
+#:$> NEBULA
+
+#:$> PROJECT
+
+#:$> BLADE
+
+#:$> 
