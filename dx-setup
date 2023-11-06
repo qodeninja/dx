@@ -6,6 +6,8 @@
 ## updated: Wed 2019-07-31 10:40 PM
 ##------------------------------------------------------------------------------
 
+
+
 #curl -L https://git.io/fx-setup  | bash -s -- inst --yes --debug
 #curl -L https://git.io/fx-install | bash <-- dis what we want
 #sudo chown -R $(whoami) /usr/local/*

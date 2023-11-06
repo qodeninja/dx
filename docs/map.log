@@ -1,0 +1,23 @@
+
+  ┬                                        
+  └──[ DX_HOME ]        ┈┈[ DX_LOCAL ]     ┈┈[ DX_DATA ]        ┈┈[ DX_DEV ]        
+      ┬                   ┐                   ┐                   ┐
+      ├───> local         ├───> etc           ├───> cache         ├───> dist
+      ├───> dev           ├───> bin           ├───> pool          ├───> repos └┈> locker/archive
+      └───> data          ├───> lib           ├───> dump          ├───> wksp
+      ┊                   └───> enc           └───> logs          ├───> wksp
+      └┈┈┈> home                                                  └───> hub   ┐
+                                                                              ├┈> books
+                                                                              ├┈> registry
+                                                                              └┈> dump
+    [ FX_LOCAL ]         
+    ├┈> etc/env   ./profile
+    ├┈> etc/fx    <┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ fx config
+    ├┈> lib/fx ┈┐ ./tasks ./cron
+    └┈> bin   <┈┘
+
+
+
+
+
+                                                        
